@@ -17,18 +17,31 @@
     - name: get token worker-1
       command: "microk8s add-node"
       register: command_output1
-    - set_fact: 
-        token1="{{command_output1.stdout | regex_search('(?<=\\n)(.*?)(?=\\n)', '\\1') | first }}"
 
+    - debug:
+        msg: "{{ command_output1 }}"
+
+    - name: Copy join key to tmp
+      become: no
+      local_action:
+        module: copy
+        content: "{{ command_output1.stdout_lines[4] }}"
+        dest: "/tmp/join_cluster1"
+        mode: 0777
 
 - name: add-worker-1
   hosts: worker-1
   become: true
   tasks:
     # Join Node to Master
-    - name: kyuga-worker-1 join kyuga-master
-      command: "{{token1}}" 
+    - name: Copy join command from Ansible control to Worker /tmp
+      copy:
+        src: /tmp/join_cluster1
+        dest: /tmp/join_cluster
+        mode: 0777
 
+    - name: Join cluster
+      command: sh /tmp/join_cluster
 
 - name: add-token-2
   hosts: master
@@ -38,13 +51,28 @@
     - name: get token worker-2
       command: "microk8s add-node"
       register: command_output2
-    - set_fact: 
-        token2="{{command_output2.stdout | regex_search('(?<=\\n)(.*?)(?=\\n)', '\\1') | first }}"
+
+    - debug:
+        msg: "{{ command_output2 }}"
+
+    - name: Copy join key to tmp
+      become: no
+      local_action:
+        module: copy
+        content: "{{ command_output2.stdout_lines[4] }}"
+        dest: "/tmp/join_cluster2"
+        mode: 0777
 
 - name: add-worker-2
   hosts: worker-2
   become: true
   tasks:
     # Join Node to Master
-    - name: kyuga-worker-2 join kyuga-master
-      command: "{{token2}}"
+    - name: Copy join command from Ansible control to Worker /tmp
+      copy:
+        src: /tmp/join_cluster2
+        dest: /tmp/join_cluster
+        mode: 0777
+
+    - name: Join cluster
+      command: sh /tmp/join_cluster

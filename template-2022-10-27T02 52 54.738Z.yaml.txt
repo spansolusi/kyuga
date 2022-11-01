@@ -1,0 +1,46 @@
+﻿heat_template_version: "2021-04-16"
+description: "version 2017-09-01 created by HOT Generator at Thu, 27 Oct 2022 02:52:49 GMT."
+resources: 
+  Server_1: 
+    type: "OS::Nova::Server"
+    properties: 
+      security_groups: 
+        - "8794acfd-6a3f-4be2-b3da-954ac614c81d"
+      networks: 
+        - network: "260ebed7-2ce2-4d1f-b176-83f1def9cffc"
+          fixed_ip: "10.5.44.181"
+      name: "kyuga-master"
+      flavor: "m1.large"
+      image: "6372b0f6-c014-4048-8ee7-ee0f2e10f0a2"
+      availability_zone: nova
+      key_name: kyuga
+  Server_2: 
+    type: "OS::Nova::Server"
+    properties: 
+      security_groups: 
+        - "8794acfd-6a3f-4be2-b3da-954ac614c81d"
+      networks: 
+        - network: "260ebed7-2ce2-4d1f-b176-83f1def9cffc"
+          fixed_ip: "10.5.44.138"
+      name: "kyuga-worker1"
+      flavor: "m1.large"
+      image: "6372b0f6-c014-4048-8ee7-ee0f2e10f0a2"
+      availability_zone: nova
+      key_name: kyuga
+    depends_on: 
+      - Server_1
+  Server_3: 
+    type: "OS::Nova::Server"
+    properties: 
+      security_groups: 
+        - "8794acfd-6a3f-4be2-b3da-954ac614c81d"
+      networks: 
+        - network: "260ebed7-2ce2-4d1f-b176-83f1def9cffc"
+          fixed_ip: "10.5.44.150"
+      name: "kyuga-worker2"
+      flavor: "m1.large"
+      image: "6372b0f6-c014-4048-8ee7-ee0f2e10f0a2"
+      availability_zone: nova
+      key_name: kyuga
+    depends_on: 
+      - Server_1

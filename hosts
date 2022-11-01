@@ -1,0 +1,13 @@
+[master]
+10.5.44.181 ansible_user=ubuntu
+[worker-1]
+10.5.44.138 ansible_user=ubuntu
+[worker-2]
+10.5.44.150 ansible_user=ubuntu
+[localhosts]
+192.168.3.33 ansible_user=ubuntu ansible_password=passw0rd ansible_sudo_pass=passw0rd
+
+[server]
+10.5.44.181 ansible_user=ubuntu
+10.5.44.138 ansible_user=ubuntu
+10.5.44.150 ansible_user=ubuntu

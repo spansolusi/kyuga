@@ -1,0 +1,50 @@
+---
+- name: token-worker
+  hosts: master
+  become: true
+  tasks:
+    # add host files
+    - name: config /etc/hosts
+      blockinfile:
+        path: /etc/hosts
+        backup: yes
+        block: |
+          10.5.44.181 kyuga-master
+          10.5.44.138 kyuga-worker1 
+          10.5.44.150 kyuga-worker2 
+
+    # Join Node to Master
+    - name: get token worker-1
+      command: "microk8s add-node"
+      register: command_output1
+    - set_fact: 
+        token1="{{command_output1.stdout | regex_search('(?<=\\n)(.*?)(?=\\n)', '\\1') | first }}"
+
+
+- name: add-worker-1
+  hosts: worker-1
+  become: true
+  tasks:
+    # Join Node to Master
+    - name: kyuga-worker-1 join kyuga-master
+      command: "{{token1}}" 
+
+
+- name: add-token-2
+  hosts: master
+  become: true
+  tasks:
+    # Join Node to Master
+    - name: get token worker-2
+      command: "microk8s add-node"
+      register: command_output2
+    - set_fact: 
+        token2="{{command_output2.stdout | regex_search('(?<=\\n)(.*?)(?=\\n)', '\\1') | first }}"
+
+- name: add-worker-2
+  hosts: worker-2
+  become: true
+  tasks:
+    # Join Node to Master
+    - name: kyuga-worker-2 join kyuga-master
+      command: "{{token2}}"

@@ -42,7 +42,7 @@
         executable: /bin/bash
 
     - name: connection unrefused
-      shell: " kubectl config view --raw > ~/.kube/config"
+      shell: "kubectl config view --raw > ~/.kube/config"
       args:
         executable: /bin/bash
 

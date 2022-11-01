@@ -1,0 +1,57 @@
+---
+- name: Setup YB-server
+  hosts: master
+  become: true
+  tasks:
+    # Update & upgarde ubuntu system
+    - name: Update system
+      apt:
+        update_cache: yes
+    
+    - name: Upgrade system
+      apt:
+        upgrade: dist
+
+    - name: Install helm
+      shell: "sudo snap install helm --classic"
+      args:
+        executable: /bin/bash
+
+    - name: enable addons hostpath-storage 
+      shell: "microk8s enable hostpath-storage"
+      args:
+        executable: /bin/bash
+
+    - name: enable addons dns 
+      shell: "microk8s enable dns"
+      args:
+        executable: /bin/bash
+
+    - name: enable addons metalLB 
+      shell: "microk8s enable metallb:10.5.44.150-10.5.44.152"
+      args:
+        executable: /bin/bash
+    - name: Add charts repository
+      shell: "helm repo add yugabytedb https://charts.yugabyte.com"
+      args:
+        executable: /bin/bash
+        
+    - name: Fetch updates repository
+      shell: "helm repo update"
+      args:
+        executable: /bin/bash
+
+    - name: connection unrefused
+      shell: " kubectl config view --raw > ~/.kube/config"
+      args:
+        executable: /bin/bash
+
+    - name: create namespace
+      shell: "kubectl create namespace yb-demo"
+      args:
+        executable: /bin/bash
+    
+    - name: deploy yb-demo
+      shell: "helm install yb-demo yugabytedb/yugabyte --version 2.15.2 --namespace yb-demo"
+      args:
+        executable: /bin/bash

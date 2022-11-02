@@ -63,6 +63,6 @@
       become: false
       lineinfile:
         path: '{{ lookup("env", "HOME") }}/.bashrc'
-       regexp: '^source \<\(kubectl'
-       line: 'source <(kubectl completion bash)'
-       state: present    
+        regexp: '^source \<\(kubectl'
+        line: 'source <(kubectl completion bash)'
+        state: present    

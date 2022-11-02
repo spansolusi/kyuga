@@ -58,11 +58,3 @@
     - name: Reboot a slow machine that might have lots of updates to apply
       ansible.builtin.reboot:
         reboot_timeout: 3600
-        
-    - name: Add bash completion for kubectl
-      become: false
-      lineinfile:
-        path: '{{ lookup("env", "HOME") }}/.bashrc'
-        regexp: '^source \<\(kubectl'
-        line: 'source <(kubectl completion bash)'
-        state: present    

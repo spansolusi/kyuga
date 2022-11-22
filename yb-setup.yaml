@@ -28,7 +28,7 @@
         executable: /bin/bash
 
     - name: enable addons metalLB 
-      shell: "microk8s enable metallb:10.5.44.150-10.5.44.152"
+      shell: "microk8s enable metallb:10.5.44.150-10.5.44.152 --wait"
       args:
         executable: /bin/bash
     - name: Add charts repository

@@ -31,7 +31,11 @@
       shell: "microk8s enable metallb:10.5.44.150-10.5.44.151"
       args:
         executable: /bin/bash
-    - name: Add charts repository
+      ansible.builtin.wait_for:
+        timeout: 300
+      delegate_to: localhost  
+   
+   - name: Add charts repository
       shell: "helm repo add yugabytedb https://charts.yugabyte.com"
       args:
         executable: /bin/bash

@@ -35,7 +35,7 @@
         timeout: 300
       delegate_to: localhost  
    
-   - name: Add charts repository
+    - name: Add charts repository
       shell: "helm repo add yugabytedb https://charts.yugabyte.com"
       args:
         executable: /bin/bash

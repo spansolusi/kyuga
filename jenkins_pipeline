@@ -1,0 +1,52 @@
+pipeline {
+    
+    agent any
+    
+    stages { 
+        
+        stage('Preparation') {
+            steps {
+                sh 'git clone https://github.com/spansolusi/kyuga.git'
+            }
+        }
+       
+       stage('create stack') {
+           steps {
+               sh 'pwd'
+               sh '. /home/ubuntu/venv1/bin/activate && . kyuga/nicky-lab-openrc.sh && openstack stack create -f yaml -t kyuga/kyuga-stack.yaml kubernetes-yuga --wait && deactivate'
+           }
+       }
+        
+        
+       
+       stage('key-verification') {
+           steps {
+               sh 'pwd'
+               sh 'chmod 400 kyuga/region3-key.pem'
+               sh 'sleep 300'
+           }
+       }
+        
+       stage('install microk8s') {
+            steps {
+                sh 'pwd'
+                sh 'cd kyuga && ansible-playbook microk8s-setup.yaml'
+            }
+        }
+        
+        stage('add-nodes') {
+            steps {
+                sh 'pwd'
+                sh 'cd kyuga && ansible-playbook add-nodes.yaml'
+            }
+        }
+        
+        stage('install YugaByte') {
+            steps{
+                sh 'pwd'
+                sh 'cd kyuga && ansible-playbook yb-setup.yaml'
+            }  
+        }
+        
+    }
+}

@@ -1,0 +1,91 @@
+heat_template_version: 2018-08-31
+
+description: OpenStack Heat Template to create a Kubernetes cluster
+
+parameters:
+  key_name:
+    type: string
+    description: Name of the SSH key pair
+  image:
+    type: string
+    description: ID or name of the image to use for instances
+  flavor:
+    type: string
+    description: Flavor of the instances
+  network:
+    type: string
+    description: ID or name of the network to attach instances
+  subnet:
+    type: string
+    description: ID or name of the subnet to attach instances
+
+resources:
+  control_plane:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      desired_capacity: 1
+      max_size: 1
+      min_size: 1
+      resource:
+        type: OS::Nova::Server
+        properties:
+          image: { get_param: image }
+          flavor: { get_param: flavor }
+          key_name: { get_param: key_name }
+          networks:
+            - network: { get_param: network }
+          user_data_format: RAW
+          user_data:
+            str_replace:
+              template: |
+                #cloud-config
+                write_files:
+                  - path: /etc/kubernetes/cloud-config
+                    permissions: 0644
+                    content: |
+                      [Global]
+                      auth-url: "http://<YOUR_AUTH_URL>/v3"
+                      auth-username: "<YOUR_USERNAME>"
+                      auth-password: "<YOUR_PASSWORD>"
+                      auth-domain-id: "<YOUR_DOMAIN_ID>"
+                      auth-project-id: "<YOUR_PROJECT_ID>"
+                      region: "<YOUR_REGION>"
+                      lb-floating-network-id: "<YOUR_FLOATING_NETWORK_ID>"
+                      manage-security-groups: "true"
+                runcmd:
+                  - curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.21.1+k3s1 K3S_NODE_NAME={{ get_attr: [control_plane, first_address] }} sh -
+
+  worker_nodes:
+    type: OS::Heat::AutoScalingGroup
+    properties:
+      desired_capacity: 2
+      max_size: 5
+      min_size: 2
+      resource:
+        type: OS::Nova::Server
+        properties:
+          image: { get_param: image }
+          flavor: { get_param: flavor }
+          key_name: { get_param: key_name }
+          networks:
+            - network: { get_param: network }
+          user_data_format: RAW
+          user_data:
+            str_replace:
+              template: |
+                #cloud-config
+                write_files:
+                  - path: /etc/kubernetes/cloud-config
+                    permissions: 0644
+                    content: |
+                      [Global]
+                      auth-url: "http://<YOUR_AUTH_URL>/v3"
+                      auth-username: "<YOUR_USERNAME>"
+                      auth-password: "<YOUR_PASSWORD>"
+                      auth-domain-id: "<YOUR_DOMAIN_ID>"
+                      auth-project-id: "<YOUR_PROJECT_ID>"
+                      region: "<YOUR_REGION>"
+                      lb-floating-network-id: "<YOUR_FLOATING_NETWORK_ID>"
+                      manage-security-groups: "true"
+                runcmd:
+                  - curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.21.1+k3s1 K3S_NODE_NAME={{ get_attr: [worker_nodes, first_address] }} sh -
